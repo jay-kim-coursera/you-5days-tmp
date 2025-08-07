@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All-in-One 영어 숙제</title>
+    <style>
+        :root {
+            --yujin-primary: #8e44ad; /* Purple */
+            --eunwoo-primary: #27ae60; /* Green */
+            --hyunmin-primary: #e67e22; /* Orange */
+            --yujin-secondary: #f9f6fb;
+            --eunwoo-secondary: #f2fdf5;
+            --hyunmin-secondary: #fef8f2;
+            --text-color: #333;
+            --border-color: #e0e0e0;
+            --header-font: 'Georgia', serif;
+            --body-font: 'Noto Sans KR', sans-serif;
+            --code-font: 'Courier New', Courier, monospace;
+        }
+        body {
+            font-family: var(--body-font);
+            line-height: 1.7;
+            margin: 0;
+            padding: 15px;
+            background-color: #f4f4f9;
+            color: var(--text-color);
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        /* 로그인 섹션 */
+        #login-section {
+            text-align: center;
+            padding: 50px 20px;
+        }
+        #login-section h2 {
+            font-family: var(--header-font);
+            font-size: 2rem;
+            color: #555;
+        }
+        #login-section input {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 15px auto;
+            padding: 12px;
+            font-size: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        #login-button {
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #login-button:hover {
+            background-color: #2980b9;
+        }
+        /* 숙제 섹션 (초기 숨김) */
+        .homework-section {
+            display: none;
+        }
+        header {
+            text-align: center;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        header h1 { margin: 0; font-family: var(--header-font); font-size: 2.2rem; }
+        .day-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        .day-card h3 {
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            font-family: var(--header-font);
+        }
+        .task { margin-bottom: 25px; }
+        .task h4 { margin-bottom: 10px; font-size: 1.1rem; }
+        .task p, .task ul, .task ol, .concept-box {
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 0;
+            font-size: 0.95rem;
+        }
+        a { text-decoration: none; font-weight: bold; }
+        a:hover { text-decoration: underline; }
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            box-sizing: border-box;
+            margin-top: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            min-height: 100px;
+        }
+        .daily-save-button {
+            display: block;
+            width: 100%;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color: 0.3s;
+            margin-top: 20px;
+        }
+        .instruction { text-align: center; margin-top: 10px; color: #777; font-size: 0.9rem;}
+        .vocab-list { columns: 2; -webkit-columns: 2; -moz-columns: 2; }
+        .concept-box { font-family: var(--code-font); white-space: pre-wrap; line-height: 1.5; }
+
+        /* 유진 학생 스타일 */
+        #yujin-content header { border-bottom: 2px solid var(--yujin-primary); }
+        #yujin-content h1, #yujin-content h3 { color: var(--yujin-primary); }
+        #yujin-content .task p, #yujin-content .task ul { background-color: var(--yujin-secondary); }
+        #yujin-content a { color: var(--yujin-primary); }
+        #yujin-content .daily-save-button { background-color: var(--yujin-primary); }
+        #yujin-content .daily-save-button:hover { background-color: #732d91; }
+
+        /* 은우 학생 스타일 */
+        #eunwoo-content header { border-bottom: 2px solid var(--eunwoo-primary); }
+        #eunwoo-content h1, #eunwoo-content h3 { color: var(--eunwoo-primary); }
+        #eunwoo-content .task p, #eunwoo-content .task ul { background-color: var(--eunwoo-secondary); }
+        #eunwoo-content a { color: var(--eunwoo-primary); }
+        #eunwoo-content .daily-save-button { background-color: var(--eunwoo-primary); }
+        #eunwoo-content .daily-save-button:hover { background-color: #219d52; }
+
+        /* 현민 학생 스타일 */
+        #hyunmin-content header { border-bottom: 2px solid var(--hyunmin-primary); }
+        #hyunmin-content h1, #hyunmin-content h3 { color: var(--hyunmin-primary); }
+        #hyunmin-content .task p, #hyunmin-content .task ul, #hyunmin-content .concept-box { background-color: var(--hyunmin-secondary); }
+        #hyunmin-content .concept-box { border-left: 5px solid var(--hyunmin-primary); }
+        #hyunmin-content a { color: var(--hyunmin-primary); }
+        #hyunmin-content .daily-save-button { background-color: var(--hyunmin-primary); }
+        #hyunmin-content .daily-save-button:hover { background-color: #d35400; }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="login-section">
+            <h2>🔒 All-in-One 영어 숙제</h2>
+            <p>이름과 비밀번호를 입력하고 본인의 숙제를 시작하세요!</p>
+            <input type="text" id="name" placeholder="이름 (예: 유진)">
+            <input type="password" id="password" placeholder="비밀번호">
+            <button id="login-button" onclick="login()">로그인</button>
+        </div>
+
+        <div id="yujin-content" class="homework-section">
+            <header>
+                <h1>👩‍🎓 초6 유진 학생</h1>
+                <h2>8/9 ~ 8/13 중1 기초 완성 플랜</h2>
+                <p>유진아, 영어의 기본기를 탄탄하게 다지는 5일 챌린지를 시작하자! 매일의 학습이 끝나면 그날의 '저장하기' 버튼을 눌러 파일을 선생님께 보내줘. 할 수 있어! 💪</p>
+            </header>
+            <main>
+                <div class="day-card">
+                    <h3>📆 Day 1: 8월 9일 (토) - 문장의 주인공, 8품사!</h3>
+                    <div class="task">
+                        <h4>1. 개념 학습: 8품사란 무엇일까?</h4>
+                        <p>모든 영어 단어는 8가지 종류(품사)로 나눌 수 있어. 각 단어가 문장에서 어떤 역할을 하는지에 따라 이름이 정해진단다.<br>
+                        <b>명사(N):</b> 사람, 사물, 장소의 이름 (boy, desk, Seoul)<br>
+                        <b>대명사(Pron):</b> 명사를 대신하는 말 (I, you, he, it)<br>
+                        <b>동사(V):</b> 움직임이나 상태를 나타내는 말 (~다 로 끝남) (go, study, is, have)<br>
+                        <b>형용사(Adj):</b> 명사를 꾸며주는 말 (어떤~) (pretty, tall, cold)<br>
+                        <b>부사(Adv):</b> 동사, 형용사, 다른 부사, 문장 전체를 꾸며주는 말 (어떻게~) (fast, very, happily)<br>
+                        <b>전치사(Prep):</b> 명사 앞에 쓰여 시간, 장소, 방향을 나타내는 말 (in, on, at, to)<br>
+                        <b>접속사(Conj):</b> 단어와 단어, 문장과 문장을 이어주는 말 (and, but, so, because)<br>
+                        <b>감탄사(Int):</b> 감정을 나타내는 말 (Oh!, Wow!, Oops!)
+                        </p>
+                    </div>
+                    <div class="task">
+                        <h4>2. 실습 1: 단어의 품사 구분하기</h4>
+                        <p>아래 단어들이 8품사 중 무엇에 해당하는지 적어보세요.<br>
+                        1. school: <br> 2. beautiful: <br> 3. run: <br> 4. and: <br> 5. quickly: <br> 6. she: <br> 7. on: <br> 8. Wow!: </p>
+                        <textarea id="yujin_d1_task2" placeholder="예: 1. 명사, 2. 형용사... 이런 식으로 답을 적어주세요."></textarea>
+                    </div>
+                     <div class="task">
+                        <h4>3. 실습 2: 문장 속에서 품사 찾기</h4>
+                        <p><b>The smart student studies English very hard at home.</b><br>위 문장에 있는 모든 단어의 품사를 각각 분석해서 적어보세요.</p>
+                        <textarea id="yujin_d1_task3" placeholder="The: (관사-형용사의 일종), smart: 형용사, student: 명사... 이런 식으로 분석해보세요."></textarea>
+                    </div>
+                     <div class="task">
+                        <h4>4. 오늘의 영작: 8품사 활용하기</h4>
+                        <p>오늘 배운 8품사 중 5가지 이상을 사용하여 자기 자신을 소개하는 3문장 이상의 글을 써보세요.</p>
+                        <textarea id="yujin_d1_task4" placeholder="예: Oh, my name is Yujin. I am a happy student and I study hard."></textarea>
+                    </div>
+                    <button class="daily-save-button" onclick="saveDailyProgress('유진', 1)">Day 1 학습 내용 저장하기 💾</button>
+                    <p class="instruction">오늘 공부 끝! 버튼을 눌러 파일을 만들고 선생님께 보내주세요.</p>
+                </div>
+                <div class="day-card">
+                    <h3>📆 Day 2: 8월 10일 (일) - 동사의 핵심, be동사와 일반동사</h3>
+                    <div class="task">
+                        <h4>1. 개념 학습: be동사와 일반동사의 차이</h4>
+                        <p><b>be동사:</b> 뜻이 '~이다, ~에 있다' 이고, 주어에 따라 am, are, is 로 변신해. 의문문은 주어와 자리를 바꾸고, 부정문은 뒤에 not만 붙이면 돼.<br>
+                        - I <b>am</b> a student. -> <b>Am</b> I a student? / I <b>am not</b> a student.<br>
+                        <b>일반동사:</b> be동사를 제외한 모든 동사! '먹다, 자다, 공부하다' 등 수많은 뜻이 있어. 의문문과 부정문을 만들 땐 조수 'do'의 도움이 꼭 필요해! (주어가 3인칭 단수일 땐 does)</p>
+                    </div>
+                    <div class="task">
+                        <h4>2. 실습 1: be동사 문장 바꾸기</h4>
+                        <p>1. You are tired. (의문문으로)<br>2. He is a teacher. (부정문으로)<br>3. They are in the classroom. (의문문으로)<br>4. She is happy. (부정문으로)</p>
+                        <textarea id="yujin_d2_task2" placeholder="바꾼 문장 4개를 여기에 적어주세요."></textarea>
+                    </div>
+                     <div class="task">
+                        <h4>3. 실습 2: 일반동사 현재형 문장 바꾸기</h4>
+                        <p>1. You like pizza. (의문문으로)<br>2. He plays the piano. (부정문으로)<br>3. They live in Seoul. (의문문으로)<br>4. She has a brother. (부정문으로)<br>
+                        <b>힌트:</b> 주어가 3인칭 단수(he, she, it...)일 때, 의문문/부정문을 만들 때 does/doesn't를 쓰고 뒤에 동사는 원래 모습(동사원형)으로 돌아와야 해! (예: He plays -> Does he play? / He doesn't play.)</p>
+                        <textarea id="yujin_d2_task3" placeholder="바꾼 문장 4개를 여기에 적어주세요."></textarea>
+                    </div>
+                     <div class="task">
+                        <h4>4. 오늘의 영작: 나의 하루 묘사하기</h4>
+                        <p>be동사와 일반동사를 모두 사용해서 나의 하루 일과를 5문장 이상으로 써보세요. 긍정문, 부정문, 의문문을 골고루 섞어보세요!</p>
+                        <textarea id="yujin_d2_task4" placeholder="예: I am a student. I go to school every day. I don't like math. Do you like English?"></textarea>
+                    </div>
+                    <button class="daily-save-button" onclick="saveDailyProgress('유진', 2)">Day 2 학습 내용 저장하기 💾</button>
+                    <p class="instruction">오늘 공부 끝! 버튼을 눌러 파일을 만들고 선생님께 보내주세요.</p>
+                </div>
+                <div class="day-card">
+                    <h3>📆 Day 3: 8월 11일 (월) - 동사의 조수, 조동사!</h3>
+                    <div class="task">
+                        <h4>1. 개념 학습: 조동사의 역할과 특징</h4>
+                        <p>조동사는 동사를 도와주는 '조수'야. 능력, 허가, 미래, 의무 등 다양한 뜻을 더해줘. 조동사의 가장 중요한 규칙은? <b>뒤에 항상 동사원형이 온다!</b><br>
+                        <b>can:</b> ~할 수 있다 (능력), ~해도 좋다 (허가)<br>
+                        <b>will:</b> ~일 것이다, ~할 것이다 (미래, 의지)<br>
+                        <b>must:</b> ~해야만 한다 (강한 의무)<br>
+                        <b>should:</b> ~하는 것이 좋다 (충고, 약한 의무)</p>
+                    </div>
+                    <div class="task">
+                        <h4>2. 실습 1: 문맥에 맞는 조동사 넣기</h4>
+                        <p>1. I am strong. I ________ lift this box. (능력)<br>
+                        2. It is cloudy. It ________ rain soon. (미래 추측)<br>
+                        3. You look sick. You ________ see a doctor. (충고)<br>
+                        4. We ________ finish our homework by tomorrow. (의무)<br>
+                        5. "________ I use your phone?" "Yes, you can." (허가)</p>
+                        <textarea id="yujin_d3_task2" placeholder="빈칸에 들어갈 조동사를 순서대로 적어주세요."></textarea>
+                    </div>
+                     <div class="task">
+                        <h4>3. 실습 2: 조동사 문장 만들기</h4>
+                        <p>아래 상황에 맞게 조동사를 사용하여 문장을 만들어 보세요.<br>
+                        1. 내가 할 수 있는 것 (수영, 피아노 연주 등)<br>
+                        2. 나의 내일 계획<br>
+                        3. 친구에게 해주고 싶은 충고<br>
+                        4. 내가 반드시 지켜야 할 약속</p>
+                        <textarea id="yujin_d3_task3" placeholder="각 상황에 맞는 문장 1개씩, 총 4문장을 만들어 보세요."></textarea>
+                    </div>
+                     <div class="task">
+                        <h4>4. 오늘의 영작: 나의 슈퍼파워!</h4>
+                        <p>만약 나에게 초능력이 생긴다면 무엇을 할 수 있고, 해야만 하는지 상상해서 5문장 이상으로 써보세요. can, will, must, should를 모두 사용해보세요.</p>
+                        <textarea id="yujin_d3_task4" placeholder="예: If I have a superpower, I can fly in the sky. I will help people in danger. I must use my power for good things."></textarea>
+                    </div>
+                    <button class="daily-save-button" onclick="saveDailyProgress('유진', 3)">Day 3 학습 내용 저장하기 💾</button>
+                    <p class="instruction">오늘 공부 끝! 버튼을 눌러 파일을 만들고 선생님께 보내주세요.</p>
+                </div>
+                <div class="day-card">
+                    <h3>📆 Day 4: 8월 12일 (화) - 문장을 잇는 풀, 접속사!</h3>
+                    <div class="task">
+                        <h4>1. 개념 학습: 자주 쓰는 접속사들</h4>
+                        <p>접속사는 단어와 단어, 문장과 문장을 이어주는 '연결고리'야.<br>
+                        <b>and:</b> 그리고 (비슷한 내용을 연결)<br>
+                        <b>but:</b> 그러나 (반대되는 내용을 연결)<br>
+                        <b>or:</b> 또는 (선택할 때 사용)<br>
+                        <b>so:</b> 그래서 (원인 -> 결과)<br>
+                        <b>because:</b> 왜냐하면 (~때문에) (결과 -> 원인)</p>
+                    </div>
+                    <div class="task">
+                        <h4>2. 실습 1: 알맞은 접속사 고르기</h4>
+                        <p>1. I like dogs, (and / but) I don't like cats.<br>
+                        2. Do you want pizza (but / or) chicken?<br>
+                        3. It was cold, (so / because) I wore a jacket.<br>
+                        4. I was late (so / because) I missed the bus.<br>
+                        5. He is tall (and / or) handsome.</p>
+                        <textarea id="yujin_d4_task2" placeholder="괄호 안에서 알맞은 접속사를 골라 순서대로 적어주세요."></textarea>
+                    </div>
+                     <div class="task">
+                        <h4>3. 실습 2: 두 문장을 한 문장으로 연결하기</h4>
+                        <p>1. She is kind. She is smart. (and 사용)<br>
+                        2. I studied hard. I got a good grade. (so 사용)<br>
+                        3. He didn't eat breakfast. He was hungry. (because 사용)<br>
+                        4. I want to go out. It is raining. (but 사용)</p>
+                        <textarea id="yujin_d4_task3" placeholder="접속사를 사용하여 두 문장을 하나의 자연스러운 문장으로 만들어 보세요."></textarea>
+                    </div>
+                     <div class="task">
+                        <h4>4. 오늘의 영작: 이유와 결과 설명하기</h4>
+                        <p>내가 가장 좋아하는 과목과 그 이유, 그리고 싫어하는 과목과 그 이유에 대해 써보세요. and, but, so, because를 모두 한 번 이상씩 사용해야 합니다.</p>
+                        <textarea id="yujin_d4_task4" placeholder="예: I like English because it is fun, but I don't like math. Math is difficult, so I get stressed."></textarea>
+                    </div>
+                    <button class="daily-save-button" onclick="saveDailyProgress('유진', 4)">Day 4 학습 내용 저장하기 💾</button>
+                    <p class="instruction">오늘 공부 끝! 버튼을 눌러 파일을 만들고 선생님께 보내주세요.</p>
+                </div>
+                <div class="day-card">
+                    <h3>📆 Day 5: 8월 13일 (수) - 기초 다지기 최종 점검</h3>
+                    <div class="task">
+                        <h4>1. 종합 실습 1: 문장 완성하기</h4>
+                        <p>1. (Do / Are) you a middle school student?<br>
+                        2. He (doesn't / isn't) have a pet.<br>
+                        3. She can (speak / speaks) Chinese very well.<br>
+                        4. I was happy (so / because) I got a gift.<br>
+                        5. A cat is an (animal / beautifully).</p>
+                        <textarea id="yujin_d5_task1" placeholder="괄호 안에서 알맞은 말을 골라 순서대로 적어주세요."></textarea>
+                    </div>
+                     <div class="task">
+                        <h4>2. 종합 실습 2: 틀린 부분 찾아 고치기</h4>
+                        <p>1. I am live in Seoul.<br>
+                        2. She don't like vegetables.<br>
+                        3. He will goes to the party.<br>
+                        4. I like reading books and listen to music.<br>
+                        5. My dog is cute but smart.</p>
+                        <textarea id="yujin_d5_task2" placeholder="틀린 부분을 찾아 바르게 고친 문장 5개를 모두 적어주세요."></textarea>
+                    </div>
+                    <div class="task">
+                        <h4>3. 최종 영작: 나에 대해 소개하기</h4>
+                        <p>이번 주에 배운 내용을 총동원하여 '나'에 대해 7문장 이상으로 소개하는 글을 써보세요. (8품사, be동사/일반동사, 조동사, 접속사 활용)</p>
+                        <textarea id="yujin_d5_task3" placeholder="자신을 소개하는 멋진 글을 작성해보세요!"></textarea>
+                    </div>
+                    <div class="task">
+                        <h4>4. 5일간의 소감</h4>
+                        <p>5일 동안 영어를 공부하면서 새롭게 알게 된 점, 가장 재미있었거나 어려웠던 부분, 그리고 앞으로 더 배우고 싶은 점을 자유롭게 적어주세요.</p>
+                        <textarea id="yujin_d5_task4" placeholder="솔직한 소감을 적어주세요! 수고 많았어요!"></textarea>
+                    </div>
+                    <button class="daily-save-button" onclick="saveDailyProgress('유진', 5)">Day 5 학습 내용 저장하기 💾</button>
+                    <p class="instruction">5일 챌린지 완료! 정말 수고했어! 마지막 파일을 선생님께 보내주세요.</p>
+                </div>
+            </main>
+        </div>
+        <div id="eunwoo-content" class="homework-section">
+             <header>
+                <h1>👨‍🎓 초6 은우 학생</h1>
+                <h2>8/9 ~ 8/13 어휘&문법 강화 플랜</h2>
+                <p>은우야, 매일 새로운 단어와 문법을 함께 정복해보자! 상세한 가이드를 따라 차근차근 하다 보면, 어느새 영어 실력이 쑥 늘어있을 거야. 파이팅! 🔥</p>
+            </header>
+            <main>
+                <div class="day-card">
+                    <h3>📆 Day 1: 8월 9일 (토) - 여행 어휘와 과거 시제</h3>
+                    <div class="task">
+                        <h4>1. 오늘의 어휘: 여행 (20개)</h4>
+                        <div class="vocab-list">
+                            <p>
+                                travel (여행하다)<br> trip (여행)<br> vacation (휴가)<br> airport (공항)<br> flight (항공편)<br> passport (여권)<br> ticket (표)<br> hotel (호텔)<br> reservation (예약)<br> luggage (짐)<br>
+                                souvenir (기념품)<br> tourist (관광객)<br> guide (안내원)<br> map (지도)<br> camera (카메라)<br> beach (해변)<br> mountain (산)<br> adventure (모험)<br> arrive (도착하다)<br> visit (방문하다)
+                            </p>
+                        </div>
+                    </div>
+                    <div class="task">
+                        <h4>2. 오늘의 문법: 일반동사 과거형</h4>
+                        <p>과거에 있었던 일을 말할 땐 동사에 '-ed'를 붙여. (예: visit -> visited, arrive -> arrived)<br>
+                        하지만! 불규칙하게 변하는 동사들도 있어. (예: go -> went, take -> took, see -> saw)<br>
+                        <b>미션:</b> 오늘의 단어 중 'arrive, visit' 와, 불규칙 동사 'go, take, see, eat, buy'의 과거형을 사용하여 '나의 지난여름 휴가'에 대한 5문장의 글을 써보세요.</p>
+                        <textarea id="eunwoo_d1_task2" placeholder="예: Last summer, my family went to the beach. I saw many people..."></textarea>
+                    </div>
+                    <div class="task">
+                        <h4>3. 실습: 여행 계획표 만들기</h4>
+                        <p>가고 싶은 나라나 도시를 정하고, 그곳에서 할 일을 3가지 계획해보세요. 'I will'을 사용해서 미래 계획을 나타내고, 오늘의 어휘를 3개 이상 사용하세요.</p>
+                        <textarea id="eunwoo_d1_task3" placeholder="예: My Trip to Paris&#10;1. I will visit the Eiffel Tower.&#10;2. I will take a picture with my new camera.&#10;3. I will buy a souvenir for my friend."></textarea>
+                    </div>
+                     <div class="task">
+                        <h4>4. 오늘의 영작: 꿈의 여행지</h4>
+                        <p>가장 가고 싶은 여행지를 정하고, 왜 그곳에 가고 싶은지, 가서 무엇을 하고 싶은지 5문장 이상으로 자세히 써보세요. 오늘 배운 단어와 문법을 활용하세요!</p>
+                        <textarea id="eunwoo_d1_task4" placeholder="I want to travel to Hawaii because it has beautiful beaches..."></textarea>
+                    </div>
+                    <button class="daily-save-button" onclick="saveDailyProgress('은우', 1)">Day 1 학습 내용 저장하기 💾</button>
+                    <p class="instruction">오늘 공부 끝! 버튼을 눌러 파일을 만들고 선생님께 보내주세요.</p>
+                </div>
+                <div class="day-card">
+                    <h3>📆 Day 2: 8월 10일 (일) - 자연 어휘와 비교급/최상급</h3>
+                     <div class="task">
+                        <h4>1. 오늘의 어휘: 자연 (20개)</h4>
+                        <div class="vocab-list">
+                            <p>
+                                nature (자연)<br> environment (환경)<br> flower (꽃)<br> tree (나무)<br> forest (숲)<br> river (강)<br> lake (호수)<br> ocean (바다)<br> sky (하늘)<br> cloud (구름)<br>
+                                star (별)<br> sun (태양)<br> moon (달)<br> animal (동물)<br> plant (식물)<br> air (공기)<br> weather (날씨)<br> big (큰)<br> small (작은)<br> beautiful (아름다운)
+                            </p>
+                        </div>
+                    </div>
+                    <div class="task">
+                        <h4>2. 오늘의 문법: 비교급 & 최상급</h4>
+                        <p>둘을 비교할 땐 **비교급(-er than, more ~ than)**, 셋 이상 중에 최고를 뽑을 땐 **최상급(the -est, the most ~)**을 사용해.<br>
+                        - The ocean is <b>bigger than</b> the lake. (바다는 호수보다 더 크다.)<br>
+                        - The cheetah is <b>the fastest</b> animal. (치타는 가장 빠른 동물이다.)<br>
+                        <b>미션:</b> '코끼리, 강아지, 고양이'를 오늘의 단어(big, small 등)를 사용해 비교하는 문장 3개를 만드세요. 그리고 '세상에서 가장 아름다운 것'에 대해 최상급을 사용해 1문장 만드세요.</p>
+                        <textarea id="eunwoo_d2_task2" placeholder="예: An elephant is bigger than a dog. A cat is smaller than a dog..."></textarea>
+                    </div>
+                     <div class="task">
+                        <h4>3. 듣기: 동물 소리 듣고 묘사하기</h4>
+                        <p><a href="https://www.youtube.com/watch?v=3Qp0vE9Y0wQ" target="_blank">동물 소리 듣기 영상</a>을 보고, 가장 인상 깊은 동물 3가지를 골라보세요. 그 동물이 어떻게 생겼고 어떤 소리를 내는지, 오늘 배운 단어와 비교급을 사용해 1문장씩 묘사해보세요.</p>
+                        <textarea id="eunwoo_d2_task3" placeholder="예: The lion has a big mane. It has a louder roar than a tiger."></textarea>
+                    </div>
+                     <div class="task">
+                        <h4>4. 오늘의 영작: 내가 가장 좋아하는 계절</h4>
+                        <p>가장 좋아하는 계절은 무엇인가요? 그 계절의 날씨, 자연의 모습 등을 다른 계절과 비교하며 5문장 이상으로 설명해보세요. 비교급과 최상급을 꼭 사용하세요!</p>
+                        <textarea id="eunwoo_d2_task4" placeholder="My favorite season is spring. The weather is warmer than winter..."></textarea>
+                    </div>
+                    <button class="daily-save-button" onclick="saveDailyProgress('은우', 2)">Day 2 학습 내용 저장하기 💾</button>
+                    <p class="instruction">오늘 공부 끝! 버튼을 눌러 파일을 만들고 선생님께 보내주세요.</p>
+                </div>
+                <div class="day-card">
+                    <h3>📆 Day 3: 8월 11일 (월) - 기술 어휘와 조동사</h3>
+                    <div class="task">
+                        <h4>1. 오늘의 어휘: 기술 (20개)</h4>
+                        <div class="vocab-list">
+                            <p>
+                                technology (기술)<br> internet (인터넷)<br> computer (컴퓨터)<br> smartphone (스마트폰)<br> laptop (노트북)<br> screen (화면)<br> keyboard (키보드)<br> app (앱)<br> website (웹사이트)<br> online (온라인의)<br>
+                                message (메시지)<br> email (이메일)<br> video (영상)<br> photo (사진)<br> upload (업로드하다)<br> download (다운로드하다)<br> search (검색하다)<br> information (정보)<br> useful (유용한)<br> fun (재미있는)
+                            </p>
+                        </div>
+                    </div>
+                    <div class="task">
+                        <h4>2. 오늘의 문법: 조동사 (can, will, must, should)</h4>
+                        <p>조동사는 동사를 도와주는 '조수'야! 능력, 미래, 의무, 충고 등 다양한 뜻을 더해줘. <b>조동사 뒤에는 항상 동사원형!</b><br>
+                        - I <b>can search</b> for information online. (나는 온라인으로 정보를 검색할 수 있다.)<br>
+                        - You <b>should not watch</b> videos too much. (너는 영상을 너무 많이 보면 안 돼.)<br>
+                        <b>미션:</b> 스마트폰의 장점 2가지(can 사용), 단점 2가지(should not 사용)를 오늘의 어휘를 활용해 문장으로 만들어보세요.</p>
+                        <textarea id="eunwoo_d3_task2" placeholder="장점 예: We can send messages easily.&#10;단점 예: We should not play games all day."></textarea>
+                    </div>
+                    <div class="task">
+                        <h4>3. 실습: 나만의 앱 기획하기</h4>
+                        <p>만약 내가 앱을 만들 수 있다면, 어떤 유용한(useful) 앱을 만들고 싶나요? 그 앱의 이름은 무엇이고, 어떤 기능(function)이 있는지 3가지 이상 설명해보세요. 조동사 can을 사용해서 설명하세요.</p>
+                        <textarea id="eunwoo_d3_task3" placeholder="App Name: Homework Helper&#10;1. This app can solve math problems.&#10;2. It can check my English spelling.&#10;3. It can help me organize my schedule."></textarea>
+                    </div>
+                     <div class="task">
+                        <h4>4. 오늘의 영작: 인터넷 사용 규칙</h4>
+                        <p>우리가 인터넷을 사용할 때 지켜야 할 규칙은 무엇일까요? '해야만 하는 것'(must)과 '하지 말아야 할 것'(must not)을 각각 2가지씩, 총 4문장 이상으로 써보세요.</p>
+                        <textarea id="eunwoo_d3_task4" placeholder="예: We must use kind words online. We must not tell our personal information to strangers."></textarea>
+                    </div>
+                    <button class="daily-save-button" onclick="saveDailyProgress('은우', 3)">Day 3 학습 내용 저장하기 💾</button>
+                    <p class="instruction">오늘 공부 끝! 버튼을 눌러 파일을 만들고 선생님께 보내주세요.</p>
+                </div>
+                <div class="day-card">
+                    <h3>📆 Day 4: 8월 12일 (화) - 쇼핑 어휘와 의문문</h3>
+                    <div class="task">
+                        <h4>1. 오늘의 어휘: 쇼핑 (20개)</h4>
+                        <div class="vocab-list">
+                            <p>
+                                shop (가게)<br> store (상점)<br> market (시장)<br> mall (쇼핑몰)<br> price (가격)<br> money (돈)<br> cash (현금)<br> credit card (신용카드)<br> expensive (비싼)<br> cheap (싼)<br>
+                                buy (사다)<br> sell (팔다)<br> pay (지불하다)<br> order (주문하다)<br> delivery (배달)<br> customer (고객)<br> clothes (옷)<br> shoes (신발)<br> food (음식)<br> book (책)
+                            </p>
+                        </div>
+                    </div>
+                    <div class="task">
+                        <h4>2. 오늘의 문법: 의문문 만들기 (How much / What / Where)</h4>
+                        <p>궁금한 것을 물어볼 때 의문문을 사용해!<br>
+                        - <b>How much</b> is this book? (이 책은 얼마인가요?)<br>
+                        - <b>What</b> do you want to buy? (무엇을 사고 싶나요?)<br>
+                        - <b>Where</b> can I buy shoes? (어디서 신발을 살 수 있나요?)<br>
+                        <b>미션:</b> 가게 주인과 손님이 되어 짧은 대화 2세트를 만들어보세요. 위 의문문과 오늘의 어휘를 모두 활용하세요.</p>
+                        <textarea id="eunwoo_d4_task2" placeholder="대화 1:&#10;A: Excuse me. What do you want?&#10;B: I want to buy a T-shirt. How much is it?&#10;A: It's 15 dollars."></textarea>
+                    </div>
+                     <div class="task">
+                        <h4>3. 실습: 아마존에서 가격 찾기!</h4>
+                        <p><a href="https://www.amazon.com/" target="_blank">아마존(Amazon)</a> 사이트에 들어가서 아래 물건들의 가격(price)을 찾아보세요!<br>
+                        1. Nike Air Force 1 (sneakers)<br>
+                        2. A new Harry Potter book<br>
+                        3. Lego Star Wars Millennium Falcon</p>
+                        <textarea id="eunwoo_d4_task3" placeholder="물건의 정확한 이름과 가격을 찾아 적어보세요. (예: 1. Nike Air Force 1 '07, $115) 가격은 조금씩 다를 수 있어요!"></textarea>
+                    </div>
+                     <div class="task">
+                        <h4>4. 오늘의 영작: 나의 위시리스트</h4>
+                        <p>내가 지금 가장 갖고 싶은 물건 3가지의 목록과 그 이유를 영어로 써보세요. 'I want to buy...' 와 'because...'를 사용해보세요.</p>
+                        <textarea id="eunwoo_d4_task4" placeholder="My Wishlist&#10;1. I want to buy new shoes because my old shoes are small.&#10;2. ..."></textarea>
+                    </div>
+                    <button class="daily-save-button" onclick="saveDailyProgress('은우', 4)">Day 4 학습 내용 저장하기 💾</button>
+                    <p class="instruction">오늘 공부 끝! 버튼을 눌러 파일을 만들고 선생님께 보내주세요.</p>
+                </div>
+                <div class="day-card">
+                    <h3>📆 Day 5: 8월 13일 (수) - 어휘&문법 총정리 👑</h3>
+                    <div class="task">
+                        <h4>1. 주간 어휘 퀴즈 (80개 중 20개)</h4>
+                        <p>지난 4일간 외웠던 단어 80개 중, 스스로 20개를 골라 영어와 뜻을 시험 보세요.</p>
+                        <textarea id="eunwoo_d5_task1" placeholder="1. travel - 여행 (O) ... 이런 식으로 20개를 테스트하고 채점해보세요."></textarea>
+                    </div>
+                    <div class="task">
+                        <h4>2. 주간 문법 퀴즈</h4>
+                        <p>1. I (go / went) to the mall yesterday.<br>
+                        2. The sky is (more beautiful / beautifuler) than the ground.<br>
+                        3. You (can / must) not steal money.<br>
+                        4. (How much / What) is this camera?<br>
+                        5. A tiger is a (strong / stronger) animal than a cat.</p>
+                        <textarea id="eunwoo_d5_task2" placeholder="괄호 안에서 알맞은 말을 골라 순서대로 적어주세요."></textarea>
+                    </div>
+                    <div class="task">
+                        <h4>3. 최종 글쓰기: 모든 것 활용하기!</h4>
+                        <p>이번 주에 배운 4가지 주제의 단어와 문법을 골고루 사용하여 '내가 만약 용돈을 10만 원 받는다면 하고 싶은 일'에 대해 7문장 이상의 글을 써보세요.</p>
+                        <textarea id="eunwoo_d5_task3" placeholder="예: If I get 100,000 won, I will go on a trip. First, I will buy new shoes because they are cheaper than boots. I can search for cheap tickets on the internet..."></textarea>
+                    </div>
+                    <div class="task">
+                        <h4>4. 5일간의 소감</h4>
+                        <p>5일 동안 영어를 공부하면서 새롭게 알게 된 점, 가장 재미있었던 어휘 주제, 그리고 앞으로 더 배우고 싶은 점을 자유롭게 적어주세요.</p>
+                        <textarea id="eunwoo_d5_task4" placeholder="솔직한 소감을 적어주세요! 수고 많았어요!"></textarea>
+                    </div>
+                    <button class="daily-save-button" onclick="saveDailyProgress('은우', 5)">Day 5 학습 내용 저장하기 💾</button>
+                    <p class="instruction">5일 챌린지 완료! 정말 수고했어! 마지막 파일을 선생님께 보내주세요.</p>
+                </div>
+            </main>
+        </div>
+        <div id="hyunmin-content" class="homework-section">
+            <header>
+                <h1>👨‍💻 중2 현민 학생</h1>
+                <h2>8/9 ~ 8/13 기초 완성 플랜 (상세 설명 버전)</h2>
+                <p>현민아, 너의 열정을 채워줄 5일 집중 훈련이야! 영상 없이도 완벽히 이해할 수 있도록, 모든 개념을 그림처럼 자세히 설명했어. 매일의 미션을 클리어하며 영어의 기둥을 세워보자! Let's do this! 👊</p>
+            </header>
+            <main>
+                <div class="day-card">
+                    <h3>📆 Day 1: 8월 9일 (토) - 시제의 모든 것: 현재, 과거, 미래</h3>
+                    <div class="task">
+                        <h4>1. 오늘의 단어 (20개)</h4>
+                        <div class="vocab-list">
+                            <p> always (항상)<br> usually (보통)<br> often (자주)<br> sometimes (가끔)<br> never (결코 ~않다)<br> every day (매일)<br> yesterday (어제)<br> last week (지난 주)<br> ago (~전에)<br> now (지금)<br>
+                                at the moment (지금)<br> tomorrow (내일)<br> next year (내년)<br> soon (곧)<br> meet (만나다)<br> watch (보다)<br> study (공부하다)<br> go (가다)<br> play (놀다)<br> boil (끓다)
+                            </p>
+                        </div>
+                    </div>
+                    <div class="task">
+                        <h4>2. 개념 학습: 시제란 시간의 표현!</h4>
+                        <div class="concept-box">
+시제: 동사의 모양을 바꿔서 '시간'을 나타내는 규칙
+
+1. 현재 시제: [동사원형] 또는 [동사-s]
+   - 언제 쓸까?
+     - 지금의 사실/상태: I am a student.
+     - 반복되는 습관: He plays soccer every Sunday.
+     - 일반적인 진리: The earth goes around the sun.
+   - 짝꿍 단어: always, usually, every day...
+
+2. 과거 시제: [동사-ed] 또는 [불규칙 변화]
+   - 언제 쓸까?
+     - 과거에 끝나버린 일: I met him yesterday.
+   - 짝꿍 단어: yesterday, last ~, ~ ago...
+
+3. 미래 시제: [will + 동사원형] 또는 [be going to + 동사원형]
+   - 언제 쓸까?
+     - 미래에 할 일: I will call you tomorrow.
+   - 짝꿍 단어: tomorrow, next ~, soon...
+                        </div>
+                    </div>
+                     <div class="task">
+                        <h4>3. 적용 훈련: 시제에 맞게 동사 바꾸기</h4>
+                        <p>1. I (meet) him yesterday. <br>2. She (watch) TV in the living room now. (힌트: 지금 ~하는 중 -> 현재진행 is -ing)<br>3. My family (go) to Busan next summer. <br>4. Water (boil) at 100 degrees Celsius. <br>5. Tom (study) for the exam last night.</p>
+                        <textarea id="hyunmin_d1_task3" placeholder="괄호 안의 동사를 문맥에 맞는 시제로 바꿔 순서대로 적으세요."></textarea>
+                    </div>
+                     <div class="task">
+                        <h4>4. 오늘의 영작: 나의 어제, 오늘, 내일</h4>
+                        <p>오늘 배운 단어와 시제를 활용하여, 어제 한 일(과거), 지금 하고 있는 일(현재진행), 내일 할 일(미래)에 대해 각각 2문장씩, 총 6문장을 써보세요.</p>
+                        <textarea id="hyunmin_d1_task4" placeholder="Yesterday, I studied English. Now, I am doing my homework. Tomorrow, I will meet my friends."></textarea>
+                    </div>
+                    <button class="daily-save-button" onclick="saveDailyProgress('현민', 1)">Day 1 학습 내용 저장하기 💾</button>
+                    <p class="instruction">오늘 공부 끝! 버튼을 눌러 파일을 만들고 선생님께 보내주세요.</p>
+                </div>
+                <div class="day-card">
+                     <h3>📆 Day 2: 8월 10일 (일) - 현재완료 파헤치기 (경험, 계속, 완료, 결과)</h3>
+                    <div class="task">
+                        <h4>1. 오늘의 단어 (20개)</h4>
+                        <div class="vocab-list">
+                            <p> experience (경험)<br> continue (계속하다)<br> complete (완료하다)<br> result (결과)<br> ever (~해 본 적이)<br> never (결코 ~않는)<br> before (전에)<br> once (한 번)<br> for (~동안)<br> since (~이래로)<br>
+                                just (막, 방금)<br> already (이미, 벌써)<br> yet (아직)<br> lose (잃어버리다)<br> finish (끝내다)<br> see (보다)<br> be (있다, 이다)<br> live (살다)<br> visit (방문하다)<br> buy (사다)
+                            </p>
+                        </div>
+                    </div>
+                    <div class="task">
+                        <h4>2. 개념 학습: 현재완료란? 과거와 현재의 연결!</h4>
+                        <div class="concept-box">
+현재완료: [have/has + 과거분사(p.p.)]
+   - 언제 쓸까? 과거에 시작된 일이 '현재'에 영향을 줄 때!
+
+   [과거]-------------------->[현재]
+     |                          |
+     |<------ 현재완료의 영역 ---->|
+
+1. 경험: "~해 본 적이 있다" (과거의 경험이 현재의 나에게 남아있음)
+   - 짝꿍 단어: ever, never, before, once...
+   - 예: I have visited Paris before.
+
+2. 계속: "쭉 ~해오고 있다" (과거부터 지금까지 계속됨)
+   - 짝꿍 단어: for(~동안), since(~이래로)
+   - 예: She has lived here for 3 years.
+
+3. 완료: "막 ~했다" (과거에 시작한 일이 방금 끝남)
+   - 짝꿍 단어: just, already, yet
+   - 예: He has just finished his homework.
+
+4. 결과: "~해버렸다 (그래서 지금 ~하다)" (과거의 일이 현재 상태를 만듦)
+   - 짝꿍 단어: have gone (가버려서 지금 없다), have lost (잃어버려서 지금 없다)
+   - 예: She has gone to Canada. (그래서 지금 여기 없어)
+                        </div>
+                    </div>
+                    <div class="task">
+                        <h4>3. 적용 훈련: 현재완료 용법 구분하기</h4>
+                        <p>1. I have never seen a tiger. <br>2. She has studied English for 10 years. <br>3. He has just finished his lunch. <br>4. My brother has lost his phone. <br>5. Have you ever visited Paris?</p>
+                        <textarea id="hyunmin_d2_task3" placeholder="위 5개 문장이 어떤 용법(경험, 계속, 완료, 결과)에 해당하는지 순서대로 적으세요."></textarea>
+                    </div>
+                     <div class="task">
+                        <h4>4. 오늘의 영작: 나의 경험 이야기하기</h4>
+                        <p>오늘 배운 단어와 현재완료 4가지 용법을 각각 1번씩 사용하여 자신의 경험이나 상황에 대한 문장을 만드세요. (총 4문장 이상)</p>
+                        <textarea id="hyunmin_d2_task4" placeholder="예: I have never visited America. (경험) / I have studied English since I was young. (계속) ..."></textarea>
+                    </div>
+                    <button class="daily-save-button" onclick="saveDailyProgress('현민', 2)">Day 2 학습 내용 저장하기 💾</button>
+                    <p class="instruction">오늘 공부 끝! 버튼을 눌러 파일을 만들고 선생님께 보내주세요.</p>
+                </div>
+                <div class="day-card">
+                    <h3>📆 Day 3: 8월 11일 (월) - 조동사, 뉘앙스를 더하다</h3>
+                    <div class="task">
+                        <h4>1. 오늘의 단어 (20개)</h4>
+                        <div class="vocab-list">
+                            <p> ability (능력)<br> permission (허가)<br> future (미래)<br> will (의지)<br> duty (의무)<br> advice (충고)<br> strong (강한)<br> weak (약한)<br> possible (가능한)<br> necessary (필요한)<br>
+                                can (~할 수 있다)<br> will (~일 것이다)<br> may (~일지도 모른다)<br> must (~해야 한다)<br> should (~하는게 좋다)<br> have to (~해야 한다)<br> borrow (빌리다)<br> worry (걱정하다)<br> touch (만지다)<br> sleep (자다)
+                            </p>
+                        </div>
+                    </div>
+                    <div class="task">
+                        <h4>2. 개념 학습: 동사의 조수, 조동사!</h4>
+                        <div class="concept-box">
+조동사: 동사 앞에 붙어서 특별한 의미를 더해주는 조수!
+   - ★★★ 조동사 뒤에는 항상 [동사원형]이 온다! ★★★
+
+1. 능력/허가: can, may
+   - I can swim. (능력)
+   - You can use my pen. (허가)
+
+2. 미래/의지: will, be going to
+   - I will be a doctor. (미래)
+
+3. 강한 의무: must, have to
+   - You must finish your homework. (꼭 해야 해)
+
+4. 약한 의무/충고: should
+   - You should eat more vegetables. (~하는 게 좋겠어)
+
+※ 중요! must not vs. don't have to
+   - You must not touch it. (만지면 절대 안돼! - 금지)
+   - You don't have to go. (갈 필요 없어. - 불필요)
+                        </div>
+                    </div>
+                    <div class="task">
+                        <h4>3. 적용 훈련: 문맥에 맞는 조동사 넣기</h4>
+                        <p>1. You look tired. You ________ get some sleep. (충고)<br>2. ________ I borrow your pencil? (허가)<br>3. It's raining. You ________ take an umbrella. (의무)<br>4. You ________ worry about the test. You studied hard. (할 필요 없어)<br>5. You ________ touch the paintings in the museum. (하면 안 돼)</p>
+                        <textarea id="hyunmin_d3_task3" placeholder="빈칸에 가장 알맞은 조동사를 순서대로 적으세요. (4번, 5번은 부정형으로!)"></textarea>
+                    </div>
+                     <div class="task">
+                        <h4>4. 오늘의 영작: 나에게 조언하기</h4>
+                        <p>오늘 배운 단어와 조동사를 활용하여, 내가 더 나은 학생이 되기 위해 해야 할 일(should), 할 수 있는 일(can), 반드시 해야 할 일(must)을 각각 2문장씩, 총 6문장으로 써보세요.</p>
+                        <textarea id="hyunmin_d3_task4" placeholder="예: I can study for one hour every day. I should get up earlier. I must not use my smartphone too much."></textarea>
+                    </div>
+                    <button class="daily-save-button" onclick="saveDailyProgress('현민', 3)">Day 3 학습 내용 저장하기 💾</button>
+                    <p class="instruction">오늘 공부 끝! 버튼을 눌러 파일을 만들고 선생님께 보내주세요.</p>
+                </div>
+                <div class="day-card">
+                    <h3>📆 Day 4: 8월 12일 (화) - 문장을 꾸미는 형용사와 부사</h3>
+                     <div class="task">
+                        <h4>1. 오늘의 단어 (20개)</h4>
+                        <div class="vocab-list">
+                            <p> adjective (형용사)<br> adverb (부사)<br> noun (명사)<br> verb (동사)<br> beautiful (아름다운)<br> beautifully (아름답게)<br> careful (조심스러운)<br> carefully (조심스럽게)<br> slow (느린)<br> slowly (느리게)<br>
+                                quick (빠른)<br> quickly (빠르게)<br> good (좋은)<br> well (잘)<br> fast (빠른, 빠르게)<br> hard (열심히 하는, 열심히)<br> sound (들리다)<br> solve (풀다)<br> run (달리다)<br> sing (노래하다)
+                            </p>
+                        </div>
+                    </div>
+                    <div class="task">
+                        <h4>2. 개념 학습: 형용사 vs 부사</h4>
+                        <div class="concept-box">
+1. 형용사 (Adjective): 명사를 꾸며주는 착한 친구!
+   - 역할: 명사 수식, 보어 역할
+   - 위치: 명사 앞 (a beautiful flower), be동사/감각동사 뒤 (She is beautiful.)
+   - 해석: "~한", "~ㄴ"
+
+   [형용사] ----> [명사]
+   (smart)       (student)
+
+2. 부사 (Adverb): 문장을 풍성하게 만드는 마법사!
+   - 역할: 동사, 형용사, 다른 부사, 문장 전체 수식
+   - 위치: 비교적 자유로움
+   - 해석: "~하게", "~히"
+
+   [부사] ----> [동사], [형용사], [다른 부사]
+   (fast)      (run)
+   (very)      (fast)
+   (very)      (beautiful)
+
+※ 헷갈리는 것들!
+   - good(형) vs well(부): He is a good student. / He plays soccer well.
+   - fast, hard, late, early: 형용사와 부사 모양이 똑같음!
+                        </div>
+                    </div>
+                    <div class="task">
+                        <h4>3. 적용 훈련: 형용사/부사 중 알맞은 것 고르기</h4>
+                        <p>1. He runs (fast / fastly). <br>2. She is a (beautiful / beautifully) singer. <br>3. The music sounds (good / well). <br>4. Please speak (quiet / quietly). <br>5. He solved the problem (easy / easily).</p>
+                        <textarea id="hyunmin_d4_task3" placeholder="괄호 안에서 알맞은 것을 골라 순서대로 적으세요."></textarea>
+                    </div>
+                     <div class="task">
+                        <h4>4. 오늘의 영작: 나 자신을 묘사하기</h4>
+                        <p>오늘 배운 단어를 활용하여, 자신의 외모나 성격을 묘사하는 문장 3개(형용사 사용), 자신의 행동을 묘사하는 문장 3개(부사 사용)를 만들어 보세요.</p>
+                        <textarea id="hyunmin_d4_task4" placeholder="형용사 예: I am a careful person.&#10;부사 예: I always study hard."></textarea>
+                    </div>
+                    <button class="daily-save-button" onclick="saveDailyProgress('현민', 4)">Day 4 학습 내용 저장하기 💾</button>
+                    <p class="instruction">오늘 공부 끝! 버튼을 눌러 파일을 만들고 선생님께 보내주세요.</p>
+                </div>
+                <div class="day-card">
+                    <h3>📆 Day 5: 8월 13일 (수) - 기초 다지기 최종 점검</h3>
+                    <div class="task">
+                        <h4>1. 오늘의 단어: 주간 단어 복습</h4>
+                        <p>지난 4일간 외웠던 단어들 중, 가장 헷갈렸던 단어 20개를 골라 다시 한번 뜻을 적어보세요.</p>
+                        <textarea id="hyunmin_d5_task1" placeholder="예: 1. usually - 보통&#10;2. since - ~이래로 ..."></textarea>
+                    </div>
+                    <div class="task">
+                        <h4>2. 주간 문법 총정리 퀴즈</h4>
+                        <p>1. He (is watching / watched) a movie on TV last night. <br>2. I (have lost / lost) my wallet. I can't find it now. <br>3. You (must / don't have to) be quiet in the library. <br>4. She sings very (good / well). <br>5. We are planning (to go / going) on a picnic. (힌트: plan to-v)</p>
+                        <textarea id="hyunmin_d5_task2" placeholder="위 5문제의 정답을 순서대로 적어주세요."></textarea>
+                    </div>
+                     <div class="task">
+                        <h4>3. 오답노트 작성</h4>
+                         <p>지난 4일간 공부하며 틀렸던 문제나 헷갈렸던 문법 개념 3가지를 골라, 왜 틀렸는지, 올바른 개념은 무엇인지 정리하세요.</p>
+                        <textarea id="hyunmin_d5_task3" placeholder="1. 헷갈렸던 개념: 현재완료의 결과 용법&#10;2. 이유는: have lost와 그냥 lost의 차이를 몰랐다.&#10;3. 올바른 개념은: have lost는 잃어버려서 지금도 없는 상태를 의미한다."></textarea>
+                    </div>
+                    <div class="task">
+                        <h4>4. 최종 글쓰기 미션</h4>
+                        <p>이번 주에 배운 4가지 핵심 문법(시제, 현재완료, 조동사, 형용사/부사)을 **모두 최소 1번 이상씩 사용**하여 '나의 지난 주말'에 대해 7문장 이상의 글을 써보세요.</p>
+                        <textarea id="hyunmin_d5_task4" placeholder="글을 여기에 작성하세요. 모든 문법 요소를 잘 활용했는지 스스로 점검해보세요."></textarea>
+                    </div>
+                    <button class="daily-save-button" onclick="saveDailyProgress('현민', 5)">Day 5 학습 내용 저장하기 💾</button>
+                    <p class="instruction">5일 챌린지 완료! 정말 수고했어! 마지막 파일을 선생님께 보내주세요.</p>
+                </div>
+            </main>
+        </div>
+        </div>
+
+    <script>
+        function login() {
+            const name = document.getElementById('name').value.trim();
+            const password = document.getElementById('password').value;
+            let targetId = '';
+
+            // 선생님! 여기에서 각 학생의 비밀번호를 수정하실 수 있습니다.
+            if (name === '유진' && password === 'yj1234') {
+                targetId = 'yujin-content';
+            } else if (name === '은우' && password === 'ew5678') {
+                targetId = 'eunwoo-content';
+            } else if (name === '현민' && password === 'hm9012') {
+                targetId = 'hyunmin-content';
+            }
+
+            if (targetId) {
+                document.getElementById('login-section').style.display = 'none';
+                document.getElementById(targetId).style.display = 'block';
+            } else {
+                alert('이름 또는 비밀번호가 틀렸습니다. 다시 시도해주세요.');
+            }
+        }
+
+        function saveDailyProgress(studentName, day) {
+            let homeworkContent = `학생: ${studentName}\n제출일: ${new Date().toLocaleDateString('ko-KR')}\n`;
+            homeworkContent += `\n================================\n`;
+            homeworkContent += `Day ${day} 학습 내용\n`;
+            homeworkContent += `================================\n\n`;
+
+            const studentIdPrefix = studentName === '유진' ? 'yujin' : (studentName === '은우' ? 'eunwoo' : 'hyunmin');
+            const dayCard = document.querySelectorAll('.day-card')[(day - 1) + (studentName === '유진' ? 0 : (studentName === '은우' ? 5 : 10))]; // This logic is fragile. Better to use IDs.
+            
+            // Let's use a more robust way by selecting within the parent container
+            const studentContainer = document.getElementById(studentIdPrefix + '-content');
+            const dayContainer = studentContainer.querySelectorAll('.day-card')[day-1];
+
+            const tasks = dayContainer.querySelectorAll('.task');
+            
+            let filledCount = 0;
+            tasks.forEach(task => {
+                const titleElement = task.querySelector('h4');
+                const title = titleElement ? titleElement.innerText : '과제';
+                const input = task.querySelector('textarea, input');
+                if (input && input.value.trim() !== '') {
+                    homeworkContent += `[과제: ${title}]\n`;
+                    homeworkContent += `${input.value}\n\n`;
+                    filledCount++;
+                }
+            });
+
+            if (filledCount === 0) {
+                alert('아직 작성한 내용이 없어요! 숙제를 먼저 진행해주세요.');
+                return;
+            }
+
+            const blob = new Blob([homeworkContent], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${studentName}_Day${day}_숙제.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            alert(`Day ${day} 숙제 파일이 저장되었어요! 이 파일을 선생님께 보내주세요.`);
+        }
+    </script>
+</body>
+</html>
